@@ -21,6 +21,18 @@ function wireScreen(){
   if(formAdd) formAdd.addEventListener('submit', e=>{ e.preventDefault(); confirmarTransferencia('add'); });
   if(formDesc) formDesc.addEventListener('submit', e=>{ e.preventDefault(); confirmarTransferencia('desc'); });
 
+  // Professor: sugestão de nome ao digitar o RA (autocomplete)
+  wireAlunoAutocomplete('add-login', 'add-login-suggest');
+  wireAlunoAutocomplete('desc-login', 'desc-login-suggest');
+
+  // Salas (professor/admin): expandir/recolher cada turma
+  $('#main').querySelectorAll('[data-toggle-sala]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.classList.toggle('open');
+      btn.nextElementSibling.classList.toggle('hidden');
+    });
+  });
+
   // Busca de alunos
   const buscaAluno = $('#busca-aluno');
   if(buscaAluno){
@@ -34,12 +46,12 @@ function wireScreen(){
 
   // Botões de ação com data-action (delegação simples via querySelectorAll)
   $('#main').querySelectorAll('[data-action]').forEach(btn=>{
-    btn.addEventListener('click', ()=> handleAction(btn.dataset.action, btn.dataset.id ? Number(btn.dataset.id) : null));
+    btn.addEventListener('click', ()=> handleAction(btn.dataset.action, btn.dataset.id ? Number(btn.dataset.id) : null, btn.dataset.login || null));
   });
   const topbarBtn = document.querySelector('[data-action="novo-aluno"], [data-action="nova-noticia"], [data-action="novo-admin"]');
 }
 
-function handleAction(action, id){
+function handleAction(action, id, login){
   switch(action){
     case 'novo-aluno': return modalEditarUsuario(null, 'aluno');
     case 'novo-admin': return modalEditarUsuario(null, 'admin');
@@ -55,7 +67,50 @@ function handleAction(action, id){
     case 'ver-noticia': return modalVerNoticia(DB.find(id));
     case 'toggle-noticia': { const n=DB.find(id); DB.update(id,{status:n.status==='ATIVO'?'INATIVO':'ATIVO'}); render(); toast('Notícia atualizada.'); return; }
     case 'excluir-noticia': return modalExcluirNoticia(id);
+    /* Sala do professor: atalho "Enviar" leva para a tela de transferência já com o login preenchido */
+    case 'enviar-aluno': {
+      goToScreen('transferir');
+      const el = $('#add-login');
+      if(el){ el.value = login || ''; el.dispatchEvent(new Event('input')); el.focus(); }
+      return;
+    }
   }
+}
+
+/* ---------- Autocomplete de aluno (usado nos campos de RA/login do professor) ----------
+   Sugere nome + RA + turma conforme o professor digita, no estilo de
+   busca do Google. Clicar numa sugestão preenche o campo com o RA. */
+function wireAlunoAutocomplete(inputId, listId){
+  const input = $('#'+inputId), list = $('#'+listId);
+  if(!input || !list) return;
+
+  function esconder(){ list.classList.remove('show'); list.innerHTML=''; }
+
+  input.addEventListener('input', ()=>{
+    const q = input.value.trim().toLowerCase();
+    if(!q){ esconder(); return; }
+    const matches = DB.all('aluno')
+      .filter(a => a.status==='ATIVO' && [a.ra, a.nome, a.login].some(v => String(v||'').toLowerCase().includes(q)))
+      .sort((a,b)=> a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity:'base' }))
+      .slice(0, 6);
+    if(!matches.length){ esconder(); return; }
+    list.innerHTML = matches.map(a => `
+      <button type="button" class="autocomplete-item" data-ra="${esc(a.ra || a.login)}">
+        <span class="ac-nome">${esc(a.nome)}</span>
+        <span class="ac-meta">${esc(a.ra || a.login)} · ${esc(normalizeTurma(a.turma) || 'sem turma')}</span>
+      </button>`).join('');
+    list.classList.add('show');
+  });
+
+  list.addEventListener('mousedown', e=>{
+    const item = e.target.closest('.autocomplete-item');
+    if(!item) return;
+    input.value = item.dataset.ra;
+    esconder();
+  });
+
+  input.addEventListener('blur', ()=> setTimeout(esconder, 150));
+  input.addEventListener('focus', ()=>{ if(input.value.trim()) input.dispatchEvent(new Event('input')); });
 }
 
 /* ---------- MODAL: criar/editar usuário (aluno, professor ou admin) ---------- */
@@ -81,7 +136,7 @@ function modalEditarUsuario(user, forcedTipo){
     const nome = $('#fu-nome').value.trim();
     const login = $('#fu-login').value.trim();
     const ra = tipo==='aluno' ? $('#fu-ra').value.trim() : '';
-    const turma = tipo==='aluno' ? $('#fu-turma').value.trim() : '';
+    const turma = tipo==='aluno' ? normalizeTurma($('#fu-turma').value) : '';
     const existente = DB.findByLogin(login);
     if(existente && (!isEdit || existente.id !== user.id)){ toast('Este login já está em uso.', 'error'); return; }
     if(isEdit){

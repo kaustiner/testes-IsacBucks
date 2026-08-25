@@ -278,6 +278,7 @@ $('#open-cadastro-aluno').addEventListener('click', ()=>{
           placeholder="Ex: 2B, 1A, 9B"
           required
         >
+        <p style="font-size:12px; color:var(--ink-400); margin-top:6px;">Pode digitar maiúsculo ou minúsculo (2b ou 2B) — o sistema padroniza sozinho.</p>
       </div>
 
       <div class="field">
@@ -343,7 +344,7 @@ $('#open-cadastro-aluno').addEventListener('click', ()=>{
         $('#ca-ra').value.trim();
 
       const turma =
-        $('#ca-turma').value.trim();
+        normalizeTurma($('#ca-turma').value);
 
       const senha =
         $('#ca-senha').value;

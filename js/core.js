@@ -130,6 +130,30 @@ const $ = sel => document.querySelector(sel);
 const fmt = n => (Number(n)||0).toLocaleString('pt-BR');
 const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+/* Normaliza o texto da turma antes de gravar no banco de dados: maiúsculas
+   e sem espaços extras, para que "2b" e "2B" sejam sempre a mesma turma
+   (evita duplicar salas na listagem por causa de maiúscula/minúscula). */
+function normalizeTurma(t){
+  return String(t||'').trim().toUpperCase().replace(/\s+/g,' ');
+}
+
+/* Agrupa os alunos por turma (já normalizada) para a tela "Salas".
+   Turmas em ordem alfabética/numérica (2A antes de 10A) e, dentro de
+   cada turma, alunos em ordem alfabética pelo nome. */
+function salasAgrupadas(){
+  const grupos = {};
+  DB.all('aluno').forEach(a=>{
+    const turma = normalizeTurma(a.turma) || 'SEM TURMA';
+    (grupos[turma] = grupos[turma] || []).push(a);
+  });
+  return Object.keys(grupos)
+    .sort((a,b)=> a.localeCompare(b, 'pt-BR', { numeric:true, sensitivity:'base' }))
+    .map(turma => ({
+      turma,
+      alunos: grupos[turma].sort((a,b)=> a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity:'base' })),
+    }));
+}
+
 /* ---------- Normalização de link de imagem ----------
    Aceita links "de visualização" (Google Drive, Dropbox, etc.) colados
    pelo usuário e converte automaticamente para o formato de imagem direta
@@ -249,8 +273,43 @@ document.addEventListener('click', e=>{
   btn.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Ocultar senha');
 });
 
+/* ---------- Tela "Salas" (professor e admin) ----------
+   Cada turma vira um "quadrado" clicável que expande e mostra os
+   alunos daquela sala, em ordem alfabética, com nome e login (RA)
+   para o professor mandar/descontar moedas rapidamente. */
+function renderSalas(){
+  const grupos = salasAgrupadas();
+  const ehProfessor = state.user.tipo === 'professor';
+  return `
+    <div class="topbar"><h2>Salas</h2></div>
+    <div class="salas-grid">
+      ${grupos.length ? grupos.map(g => `
+        <div class="sala-card">
+          <button class="sala-header" data-toggle-sala="${esc(g.turma)}">
+            <span class="sala-turma">${esc(g.turma)}</span>
+            <span class="sala-count">${g.alunos.length} aluno${g.alunos.length===1?'':'s'}</span>
+            <span class="sala-chevron">▾</span>
+          </button>
+          <div class="sala-body hidden">
+            ${g.alunos.map(a => `
+              <div class="sala-aluno-row">
+                <div class="sala-aluno-info">
+                  <span class="sala-aluno-nome">${esc(a.nome)}</span>
+                  <span class="sala-aluno-login">${esc(a.login)}</span>
+                </div>
+                ${statusBadge(a.status)}
+                ${ehProfessor
+                  ? `<button class="btn btn-ghost btn-sm" data-action="enviar-aluno" data-login="${esc(a.login)}">Enviar</button>`
+                  : `<button class="btn btn-ghost btn-sm" data-action="saldo-usuario" data-id="${a.id}">Saldo</button>`}
+              </div>`).join('')}
+          </div>
+        </div>
+      `).join('') : `<div class="empty-state"><div class="coin">IB</div>Nenhum aluno cadastrado ainda.</div>`}
+    </div>
+  `;
+}
+
 function closeModal(){ $('#modal-root').innerHTML = ''; }
 function openModal(html, extraClass){ $('#modal-root').innerHTML = `<div class="modal-overlay" id="modal-overlay"><div class="modal ${extraClass||''}">${html}</div></div>`;
   $('#modal-overlay').addEventListener('click', e=>{ if(e.target.id==='modal-overlay') closeModal(); });
 }
-

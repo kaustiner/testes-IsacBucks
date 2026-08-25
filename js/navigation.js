@@ -41,12 +41,14 @@ const MENUS = {
   professor: [
     { id:'dashboard', label:'Meu saldo', icon:'●' },
     { id:'transferir', label:'Adicionar / Descontar', icon:'⇄' },
+    { id:'salas', label:'Salas', icon:'▦' },
     { id:'noticias', label:'Notícias', icon:'▤' },
     { id:'perfil', label:'Meu perfil', icon:'◐' },
   ],
   admin: [
     { id:'dashboard', label:'Dashboard', icon:'▦' },
     { id:'alunos', label:'Alunos', icon:'◐' },
+    { id:'salas', label:'Salas', icon:'▦' },
     { id:'professores', label:'Professores', icon:'◐' },
     { id:'aprovacoes', label:'Aprovações', icon:'✓' },
     { id:'noticias', label:'Notícias', icon:'▤' },
@@ -141,11 +143,10 @@ document.addEventListener('click', (e)=>{
 function render(){
   const fn = {
     aluno: { dashboard: renderAlunoDashboard, noticias: renderNoticiasView, perfil: renderPerfil },
-    professor: { dashboard: renderProfessorDashboard, transferir: renderTransferir, noticias: renderNoticiasView, perfil: renderPerfil },
-    admin: { dashboard: renderAdminDashboard, alunos: renderAdminAlunos, professores: renderAdminProfessores,
+    professor: { dashboard: renderProfessorDashboard, transferir: renderTransferir, salas: renderSalas, noticias: renderNoticiasView, perfil: renderPerfil },
+    admin: { dashboard: renderAdminDashboard, alunos: renderAdminAlunos, salas: renderSalas, professores: renderAdminProfessores,
               aprovacoes: renderAprovacoes, noticias: renderAdminNoticias, administradores: renderAdminAdmins },
   }[state.user.tipo][state.screen];
   $('#main').innerHTML = fn ? fn() : '';
   wireScreen();
 }
-

@@ -58,7 +58,11 @@ function renderTransferir(){
       <div class="card">
         <h3>➕ Adicionar a um aluno</h3>
         <form id="form-add" data-modo="add">
-          <div class="field"><label>Login ou RA do aluno</label><input id="add-login" required></div>
+          <div class="field autocomplete-wrap">
+            <label>Login ou RA do aluno</label>
+            <input id="add-login" autocomplete="off" required>
+            <div class="autocomplete-list" id="add-login-suggest"></div>
+          </div>
           <div class="field"><label>Quantidade</label><input id="add-valor" type="number" min="1" step="1" required></div>
           <button class="btn btn-primary btn-block" type="submit">Adicionar</button>
         </form>
@@ -66,7 +70,11 @@ function renderTransferir(){
       <div class="card">
         <h3>➖ Descontar de um aluno</h3>
         <form id="form-desc" data-modo="desc">
-          <div class="field"><label>Login ou RA do aluno</label><input id="desc-login" required></div>
+          <div class="field autocomplete-wrap">
+            <label>Login ou RA do aluno</label>
+            <input id="desc-login" autocomplete="off" required>
+            <div class="autocomplete-list" id="desc-login-suggest"></div>
+          </div>
           <div class="field"><label>Quantidade</label><input id="desc-valor" type="number" min="1" step="1" required></div>
           <button class="btn btn-danger btn-block" type="submit">Descontar</button>
         </form>
@@ -74,4 +82,3 @@ function renderTransferir(){
     </div>
   `;
 }
-
