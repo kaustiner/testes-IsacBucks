@@ -114,3 +114,35 @@ $('#open-cadastro-professor').addEventListener('click', ()=>{
   });
 });
 
+/* ---------- INICIALIZAÇÃO ---------- */
+async function boot(){
+  $('#loading-box').classList.remove('hidden');
+  $('#retry-box').classList.add('hidden');
+  $('#login-form').classList.add('hidden');
+  $('#cadastro-link-wrap').classList.add('hidden');
+
+  try{
+    await DB.carregar();
+
+    $('#loading-box').classList.add('hidden');
+    $('#login-form').classList.remove('hidden');
+    $('#cadastro-link-wrap').classList.remove('hidden');
+
+    const lembrado = getLembrado();
+
+    if(lembrado){
+      $('#login-input').value = lembrado.login;
+      $('#senha-input').value = lembrado.senha;
+      $('#lembrar-checkbox').checked = true;
+
+      tentarLogin(lembrado.login, lembrado.senha, true);
+    }
+
+  }catch(err){
+    $('#loading-box').classList.add('hidden');
+    $('#retry-box').classList.remove('hidden');
+  }
+}
+
+$('#retry-btn').addEventListener('click', boot);
+boot();
