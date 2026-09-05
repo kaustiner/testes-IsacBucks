@@ -59,6 +59,7 @@ const MENUS = {
 function enterApp(){
   $('#login-screen').classList.add('hidden');
   $('#app-screen').classList.remove('hidden');
+  sincronizarTemaDaConta();
   buildNav();
   buildBottomNav();
   $('#who-box').innerHTML = `<b>${esc(state.user.nome)}</b>${labelTipo(state.user.tipo)}`;

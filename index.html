@@ -4,10 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IsacBucks · Banco da Escola</title>
+<script>
+  /* Aplica o tema salvo neste navegador ANTES do CSS carregar, pra
+     tela não "piscar" com a cor padrão por uma fração de segundo. */
+  (function(){
+    try{
+      var t = localStorage.getItem('isacbucks_tema');
+      if(t) document.documentElement.setAttribute('data-tema', t);
+    }catch(e){}
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/temas.css">
 </head>
 <body>
 
@@ -107,6 +118,7 @@
     <nav id="nav-list"></nav>
     <div class="sidebar-footer">
       <div class="who" id="who-box"></div>
+      <button class="nav-item" id="tema-btn"><span class="nav-icon">🎨</span> Tema</button>
       <button class="nav-item" id="logout-btn"><span class="nav-icon">⎋</span> Sair</button>
     </div>
   </aside>
@@ -124,6 +136,7 @@
 <div id="modal-root"></div>
 
 <script src="js/core.js"></script>
+<script src="js/temas.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/aluno.js"></script>

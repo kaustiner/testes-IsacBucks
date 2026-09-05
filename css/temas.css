@@ -1,0 +1,91 @@
+/* ============================================================
+   ISACBUCKS — TEMAS DE COR
+   Cada bloco abaixo só redefine as variáveis de cor já usadas em
+   style.css (nada de CSS duplicado). O tema ativo é escolhido pelo
+   atributo data-tema no <html>, controlado por js/temas.js.
+   Trocar de tema não muda o layout, ícones ou tipografia — só a
+   paleta de cores.
+   ============================================================ */
+
+/* ---------- Padrão (Azul & Dourado) ----------
+   Mesmos valores do :root em style.css. Repetido aqui só pra
+   funcionar caso o usuário escolha "padrão" de propósito depois
+   de já ter usado outro tema. */
+html[data-tema="padrao"]{
+  --navy-900:#0A1730; --navy-800:#0F2249; --navy-700:#173164;
+  --blue-600:#2E5CE0; --blue-500:#3E6BFF; --blue-100:#E7EEFF;
+  --gold-500:#F0B429; --gold-600:#D69412;
+  --bg:#EEF2FA; --surface:#FFFFFF;
+  --ink-900:#0E1626; --ink-600:#4B5670; --ink-400:#8993AC; --line:#E2E8F5;
+  --success:#1C9A6C; --success-bg:#E6F7EF;
+  --danger:#E1454B; --danger-bg:#FCE9EA;
+  --warn:#B8790E; --warn-bg:#FCF1DC;
+}
+
+/* ---------- Modo Escuro ----------
+   Fundo escuro pra quem usa o app à noite. Dourado da moeda
+   continua igual, pra manter a identidade do "IB". */
+html[data-tema="escuro"]{
+  --navy-900:#070C18; --navy-800:#0C1730; --navy-700:#132247;
+  --blue-600:#3E6BFF; --blue-500:#5B8CFF; --blue-100:#1B2740;
+  --gold-500:#F0B429; --gold-600:#D69412;
+  --bg:#0B1220; --surface:#131B2E;
+  --ink-900:#EAF0FF; --ink-600:#A9B4CE; --ink-400:#6B7690; --line:#232F4A;
+  --success:#2FBE85; --success-bg:#123626;
+  --danger:#F0666C; --danger-bg:#3A1519;
+  --warn:#E0A83D; --warn-bg:#3A2A0C;
+}
+
+/* ---------- Verde Esmeralda ----------
+   Verde de "banco" combinando com a ideia de moedas/dinheiro. */
+html[data-tema="esmeralda"]{
+  --navy-900:#062A1D; --navy-800:#0B3B29; --navy-700:#0F5038;
+  --blue-600:#0FA968; --blue-500:#12C77B; --blue-100:#DFF7EB;
+  --gold-500:#F0B429; --gold-600:#D69412;
+  --bg:#EEF9F2; --surface:#FFFFFF;
+  --ink-900:#0E1F19; --ink-600:#4B6459; --ink-400:#89A398; --line:#DCEFE4;
+  --success:#1C9A6C; --success-bg:#E6F7EF;
+  --danger:#E1454B; --danger-bg:#FCE9EA;
+  --warn:#B8790E; --warn-bg:#FCF1DC;
+}
+
+/* ---------- Roxo Royal ---------- */
+html[data-tema="roxo"]{
+  --navy-900:#1B0F38; --navy-800:#2A1854; --navy-700:#3B2277;
+  --blue-600:#7C3AED; --blue-500:#9061F9; --blue-100:#EEE6FD;
+  --gold-500:#F0B429; --gold-600:#D69412;
+  --bg:#F4F1FC; --surface:#FFFFFF;
+  --ink-900:#180E2E; --ink-600:#564B70; --ink-400:#948BAA; --line:#E6DFF7;
+  --success:#1C9A6C; --success-bg:#E6F7EF;
+  --danger:#E1454B; --danger-bg:#FCE9EA;
+  --warn:#B8790E; --warn-bg:#FCF1DC;
+}
+
+/* ---------- Pôr do Sol (laranja) ---------- */
+html[data-tema="laranja"]{
+  --navy-900:#2B1608; --navy-800:#3F220D; --navy-700:#583012;
+  --blue-600:#EA6A12; --blue-500:#FF8A3D; --blue-100:#FFEADB;
+  --gold-500:#F0B429; --gold-600:#D69412;
+  --bg:#FFF6ED; --surface:#FFFFFF;
+  --ink-900:#2B1A0E; --ink-600:#6E5A4A; --ink-400:#A6907E; --line:#F3E2D2;
+  --success:#1C9A6C; --success-bg:#E6F7EF;
+  --danger:#E1454B; --danger-bg:#FCE9EA;
+  --warn:#B8790E; --warn-bg:#FCF1DC;
+}
+
+/* ---------- UI do seletor de tema (modal) ---------- */
+.tema-opcao{
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  border:1.5px solid var(--line); background:var(--surface); border-radius:var(--radius-md);
+  padding:12px 14px; cursor:pointer; font-family:inherit;
+  transition:border-color .12s ease, background .12s ease;
+}
+.tema-opcao:hover{border-color:var(--blue-500); background:var(--blue-100);}
+.tema-opcao-ativa{border-color:var(--blue-600); box-shadow:0 0 0 3px var(--blue-100);}
+.tema-swatch{display:flex; flex:none;}
+.tema-swatch span{width:16px; height:26px; display:block; margin-left:-6px;}
+.tema-swatch span:first-child{margin-left:0; border-radius:6px 0 0 6px;}
+.tema-swatch span:last-child{border-radius:0 6px 6px 0;}
+.tema-info{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.tema-nome{font-weight:700; font-size:14px; color:var(--navy-900);}
+.tema-desc{font-size:12px; color:var(--ink-400);}
