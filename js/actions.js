@@ -25,11 +25,21 @@ function wireScreen(){
   wireAlunoAutocomplete('add-login', 'add-login-suggest');
   wireAlunoAutocomplete('desc-login', 'desc-login-suggest');
 
-  // Salas (professor/admin): expandir/recolher cada turma
-  $('#main').querySelectorAll('[data-toggle-sala]').forEach(btn=>{
+  // Salas (professor/admin): expandir/recolher cada turma, tipo sanfona
+  // (abrir uma sala fecha as outras que estavam abertas, evitando várias
+  // caixas abertas ao mesmo tempo ocupando a tela, principalmente no celular)
+  const botoesSala = $('#main').querySelectorAll('[data-toggle-sala]');
+  botoesSala.forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      btn.classList.toggle('open');
-      btn.nextElementSibling.classList.toggle('hidden');
+      const jaAberta = !btn.nextElementSibling.classList.contains('hidden');
+      botoesSala.forEach(outro=>{
+        outro.classList.remove('open');
+        outro.nextElementSibling.classList.add('hidden');
+      });
+      if(!jaAberta){
+        btn.classList.add('open');
+        btn.nextElementSibling.classList.remove('hidden');
+      }
     });
   });
 
@@ -46,12 +56,12 @@ function wireScreen(){
 
   // Botões de ação com data-action (delegação simples via querySelectorAll)
   $('#main').querySelectorAll('[data-action]').forEach(btn=>{
-    btn.addEventListener('click', ()=> handleAction(btn.dataset.action, btn.dataset.id ? Number(btn.dataset.id) : null, btn.dataset.login || null));
+    btn.addEventListener('click', ()=> handleAction(btn.dataset.action, btn.dataset.id ? Number(btn.dataset.id) : null, btn.dataset.login || null, btn.dataset.turma || null));
   });
   const topbarBtn = document.querySelector('[data-action="novo-aluno"], [data-action="nova-noticia"], [data-action="novo-admin"]');
 }
 
-function handleAction(action, id, login){
+function handleAction(action, id, login, turma){
   switch(action){
     case 'novo-aluno': return modalEditarUsuario(null, 'aluno');
     case 'novo-admin': return modalEditarUsuario(null, 'admin');
@@ -67,6 +77,10 @@ function handleAction(action, id, login){
     case 'ver-noticia': return modalVerNoticia(DB.find(id));
     case 'toggle-noticia': { const n=DB.find(id); DB.update(id,{status:n.status==='ATIVO'?'INATIVO':'ATIVO'}); render(); toast('Notícia atualizada.'); return; }
     case 'excluir-noticia': return modalExcluirNoticia(id);
+    /* Ferramentas dev: exclusão em massa */
+    case 'excluir-sala': return excluirSala(turma);
+    case 'excluir-todos-alunos': return excluirTodosAlunos();
+    case 'excluir-todos-professores': return excluirTodosProfessores();
     /* Sala do professor: atalho "Enviar" leva para a tela de transferência já com o login preenchido */
     case 'enviar-aluno': {
       goToScreen('transferir');
@@ -229,6 +243,66 @@ function modalConfirmarExclusao(id){
     DB.remove(id);
     closeModal(); render();
     toast('Usuário excluído.');
+  });
+}
+
+/* ---------- MODAL: confirmar exclusão em massa (ferramentas dev) ----------
+   Confirmação mais elaborada que a exclusão individual: além do aviso,
+   exige digitar a palavra EXCLUIR para liberar o botão. Sem mais firula
+   que isso — sem contagem regressiva, sem segunda tela. */
+function modalConfirmarExclusaoEmMassa({ titulo, descricao, ids }){
+  const count = ids.length;
+  if(!count){ toast('Não há contas para excluir.', 'error'); return; }
+  const PALAVRA = 'EXCLUIR';
+  openModal(`
+    <div class="confirm-icon" style="background:var(--danger-bg); color:var(--danger);">⚠</div>
+    <h3>${esc(titulo)}</h3>
+    <p class="modal-sub">${esc(descricao)} Esta ação não pode ser desfeita.</p>
+    <div class="field">
+      <label>Digite <b>${PALAVRA}</b> para confirmar</label>
+      <input id="em-confirma-texto" autocomplete="off" placeholder="${PALAVRA}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" id="em-confirmar" disabled>Excluir ${count} conta${count===1?'':'s'}</button>
+    </div>
+  `);
+  const input = $('#em-confirma-texto'), btn = $('#em-confirmar');
+  input.addEventListener('input', ()=>{ btn.disabled = input.value.trim().toUpperCase() !== PALAVRA; });
+  input.focus();
+  btn.addEventListener('click', ()=>{
+    if(btn.disabled) return;
+    ids.forEach(id => DB.remove(id));
+    closeModal(); render();
+    toast(`${count} conta${count===1?'':'s'} excluída${count===1?'':'s'}.`);
+  });
+}
+
+function excluirSala(turma){
+  if(!turma) return;
+  const alunos = DB.all('aluno').filter(a => normalizeTurma(a.turma) === turma);
+  modalConfirmarExclusaoEmMassa({
+    titulo: `Excluir a sala ${turma}?`,
+    descricao: `Todos os ${alunos.length} aluno(s) da turma ${turma} terão o login excluído.`,
+    ids: alunos.map(a => a.id),
+  });
+}
+
+function excluirTodosAlunos(){
+  const alunos = DB.all('aluno');
+  modalConfirmarExclusaoEmMassa({
+    titulo: 'Excluir todos os alunos?',
+    descricao: `Todos os ${alunos.length} aluno(s) cadastrados, de todas as salas, terão o login excluído.`,
+    ids: alunos.map(a => a.id),
+  });
+}
+
+function excluirTodosProfessores(){
+  const profs = DB.all('professor');
+  modalConfirmarExclusaoEmMassa({
+    titulo: 'Excluir todos os professores?',
+    descricao: `Todos os ${profs.length} professor(es) cadastrados terão o login excluído.`,
+    ids: profs.map(p => p.id),
   });
 }
 

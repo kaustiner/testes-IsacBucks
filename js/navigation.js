@@ -69,12 +69,26 @@ function labelTipo(tipo){
   return { aluno:'Aluno', professor:'Professor', admin:'Administrador' }[tipo] || '';
 }
 
+/* Admin "desenvolvedor": só quem estiver em CONFIG.DEV_LOGINS enxerga
+   o menu de exclusão em massa. */
+function isDev(user){
+  return !!user && user.tipo==='admin' && CONFIG.DEV_LOGINS.includes(user.login);
+}
+
+/* Menu efetivo do usuário logado (acrescenta "Ferramentas dev" no fim,
+   quando aplicável, sem mexer no MENUS base). */
+function menuDoUsuario(){
+  const menu = MENUS[state.user.tipo].slice();
+  if(isDev(state.user)) menu.push({ id:'ferramentas', label:'Ferramentas dev', icon:'⚠' });
+  return menu;
+}
+
 function initials(nome){
   return (nome||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 }
 
 function buildNav(){
-  const menu = MENUS[state.user.tipo];
+  const menu = menuDoUsuario();
   $('#nav-list').innerHTML = menu.map(m =>
     `<button class="nav-item ${state.screen===m.id?'active':''}" data-screen="${m.id}">
       <span class="nav-icon">${m.icon}</span> ${m.label}
@@ -93,7 +107,7 @@ function buildNav(){
    + um 4º botão. Se o menu tiver mais de 3 itens (caso do admin), o 4º
    botão vira "Mais" e abre a sidebar; senão vira "Sair" direto. */
 function buildBottomNav(){
-  const menu = MENUS[state.user.tipo];
+  const menu = menuDoUsuario();
   let items;
   if(menu.length <= 3){
     items = menu.map(m=>({ id:m.id, label:m.label, icon:m.icon, action:'goto' }))
@@ -119,6 +133,7 @@ function buildBottomNav(){
 /* Usado tanto pela sidebar quanto pelos atalhos (ações rápidas, listas
    de atalho, etc.) dentro do conteúdo das telas via data-goto="tela". */
 function goToScreen(id){
+  if(id==='ferramentas' && !isDev(state.user)) return; // tela restrita aos admins da lista DEV_LOGINS
   state.screen = id;
   buildNav();
   buildBottomNav();
@@ -145,7 +160,8 @@ function render(){
     aluno: { dashboard: renderAlunoDashboard, noticias: renderNoticiasView, perfil: renderPerfil },
     professor: { dashboard: renderProfessorDashboard, transferir: renderTransferir, salas: renderSalas, noticias: renderNoticiasView, perfil: renderPerfil },
     admin: { dashboard: renderAdminDashboard, alunos: renderAdminAlunos, salas: renderSalas, professores: renderAdminProfessores,
-              aprovacoes: renderAprovacoes, noticias: renderAdminNoticias, administradores: renderAdminAdmins },
+              aprovacoes: renderAprovacoes, noticias: renderAdminNoticias, administradores: renderAdminAdmins,
+              ferramentas: renderAdminFerramentas },
   }[state.user.tipo][state.screen];
   $('#main').innerHTML = fn ? fn() : '';
   wireScreen();

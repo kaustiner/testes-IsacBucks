@@ -39,6 +39,12 @@
 
 const CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbwwSqEM1TRT6kLDt07pZeQl3g4wlEvx3xLZh5-W6ZCPaV83mcDGDZcFbmhTzksdCauc/exec",
+
+  /* Logins de admin que enxergam o menu "Ferramentas dev" (exclusão em
+     massa de contas). Qualquer admin já pode excluir contas uma a uma;
+     esta lista só decide quem vê os atalhos de exclusão em massa —
+     adicione o(s) login(s) de quem for mexer nisso. */
+  DEV_LOGINS: ["admin"],
 };
 
 const DEMO_ROWS = [

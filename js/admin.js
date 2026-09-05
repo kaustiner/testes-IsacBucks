@@ -163,6 +163,42 @@ function renderAdminNoticias(){
   `;
 }
 
+/* ---------- Ferramentas dev: exclusão em massa ---------- */
+function renderAdminFerramentas(){
+  const grupos = salasAgrupadas();
+  const totalAlunos = DB.all('aluno').length;
+  const totalProfs = DB.all('professor').length;
+  return `
+    <div class="topbar"><h2>Ferramentas dev</h2></div>
+    <p class="modal-sub" style="margin-top:-6px;">Exclusão em massa de logins. As contas apagadas aqui não podem ser recuperadas — use com cuidado.</p>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3>Excluir sala inteira</h3>
+      <p class="modal-sub">Apaga o login de todos os alunos da turma escolhida.</p>
+      ${grupos.length ? grupos.map(g => `
+        <div class="sala-aluno-row">
+          <div class="sala-aluno-info">
+            <span class="sala-aluno-nome">${esc(g.turma)}</span>
+            <span class="sala-aluno-login">${g.alunos.length} aluno${g.alunos.length===1?'':'s'}</span>
+          </div>
+          <button class="btn btn-danger btn-sm" data-action="excluir-sala" data-turma="${esc(g.turma)}">Excluir sala</button>
+        </div>`).join('') : `<p class="modal-sub" style="margin-bottom:0;">Nenhuma sala cadastrada.</p>`}
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3>Excluir todos os alunos</h3>
+      <p class="modal-sub">Apaga o login de todos os ${totalAlunos} aluno${totalAlunos===1?'':'s'} cadastrado${totalAlunos===1?'':'s'}, de todas as salas.</p>
+      <button class="btn btn-danger btn-sm" data-action="excluir-todos-alunos">Excluir todos os alunos</button>
+    </div>
+
+    <div class="card">
+      <h3>Excluir todos os professores</h3>
+      <p class="modal-sub">Apaga o login de todos os ${totalProfs} professor${totalProfs===1?'':'es'} cadastrado${totalProfs===1?'':'s'}.</p>
+      <button class="btn btn-danger btn-sm" data-action="excluir-todos-professores">Excluir todos os professores</button>
+    </div>
+  `;
+}
+
 function renderAdminAdmins(){
   const admins = DB.all('admin');
   return `
@@ -182,4 +218,3 @@ function renderAdminAdmins(){
     </div>
   `;
 }
-
