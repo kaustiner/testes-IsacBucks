@@ -23,11 +23,15 @@
 const TEMA_KEY = 'isacbucks_tema';
 
 const TEMAS = [
-  { id:'padrao',    nome:'Azul & Dourado',   desc:'Tema original do IsacBucks.',                          cores:['#0F2249','#3E6BFF','#F0B429'] },
-  { id:'escuro',    nome:'Modo Escuro',      desc:'Fundo escuro, mais confortável à noite.',              cores:['#0B1220','#5B8CFF','#F0B429'] },
-  { id:'esmeralda', nome:'Verde Esmeralda',  desc:'Verde de "banco", combina com o tema de moedas.',      cores:['#0B3B29','#12C77B','#F0B429'] },
-  { id:'roxo',      nome:'Roxo Royal',       desc:'Roxo elegante com dourado.',                           cores:['#2A1854','#8B5CF6','#F0B429'] },
-  { id:'laranja',   nome:'Pôr do Sol',       desc:'Laranja vibrante e caloroso.',                         cores:['#3F220D','#FF7A29','#F0B429'] },
+  { id:'padrao',       nome:'Azul & Dourado',  desc:'Tema original do IsacBucks.',                             cores:['#0F2249','#3E6BFF','#F0B429'] },
+  { id:'escuro',       nome:'Modo Escuro',     desc:'Fundo escuro azulado, confortável à noite.',              cores:['#0B1220','#5B8CFF','#F0B429'] },
+  { id:'esmeralda',    nome:'Verde Esmeralda', desc:'Verde de "banco", combina com o tema de moedas.',         cores:['#0B3B29','#12C77B','#F0B429'] },
+  { id:'roxo',         nome:'Roxo Royal',      desc:'Roxo elegante com dourado.',                              cores:['#2A1854','#8B5CF6','#F0B429'] },
+  { id:'laranja',      nome:'Pôr do Sol',      desc:'Laranja vibrante e caloroso.',                            cores:['#3F220D','#FF7A29','#F0B429'] },
+  { id:'preto',        nome:'Preto Absoluto',  desc:'Preto bem preto de verdade, com texto branco puro.',      cores:['#000000','#2E6FFF','#F0B429'] },
+  { id:'cinza-escuro', nome:'Cinza Escuro',    desc:'Escuro neutro, sem tom azulado.',                         cores:['#1C1C1E','#3E6BFF','#F0B429'] },
+  { id:'cinza-claro',  nome:'Cinza Claro',     desc:'Claro e neutro, visual mais sóbrio.',                     cores:['#EDEDEF','#3E6BFF','#F0B429'] },
+  { id:'rgb',          nome:'Modo RGB',        desc:'A barra lateral, o topo e os botões giram pelas cores do arco-íris.', cores:['#FF3B3B','#3BFF6B','#3B6BFF'] },
 ];
 
 /* Aplica o tema na tela e salva neste navegador. Se opts.salvarNaConta
